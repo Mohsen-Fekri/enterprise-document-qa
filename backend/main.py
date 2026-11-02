@@ -32,7 +32,7 @@ app = FastAPI(
     title="Enterprise Document Q&A API",
     description="RAG assistant by JustinFE for policies, audits, risk reports, and cybersecurity documents.",
     version="1.0.0",
-    contact={"name": "Justin-Fekri", "url": "https://github.com/Justin-Fekri"},
+    contact={"name": "Mohsen-Fekri", "url": "https://github.com/Mohsen-Fekri"},
     lifespan=lifespan,
 )
 app.add_middleware(

@@ -1,6 +1,6 @@
 # Enterprise Document Q&A
 
-![CI](https://github.com/Justin-Fekri/enterprise-document-qa/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/Mohsen-Fekri/enterprise-document-qa/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 A question-answering assistant for company documents like security policies, audit procedures and risk reports. It reads PDF and Word files, finds the passages that answer your question, and replies with page-level citations. If the documents it's allowed to search don't contain enough evidence, it says so instead of making something up.

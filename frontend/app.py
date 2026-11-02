@@ -159,7 +159,7 @@ def sidebar(user: dict) -> dict:
     with st.sidebar:
         st.markdown("### Northstar")
         st.caption("Enterprise document Q&A")
-        st.caption("Project by Justin-Fekri")
+        st.caption("Project by Mohsen-Fekri")
         st.markdown("---")
         st.markdown(f"**{user['full_name']}**")
         st.caption(ROLE_LABELS.get(user["role"], user["role"]))
