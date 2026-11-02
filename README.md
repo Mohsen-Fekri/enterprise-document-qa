@@ -2,12 +2,17 @@
 
 ![CI](https://github.com/Mohsen-Fekri/enterprise-document-qa/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-MIT-green)
+[![Live demo](https://img.shields.io/badge/Live%20demo-try%20it%20in%20your%20browser-1D4ED8)](https://mohsen-fekri.github.io/enterprise-document-qa/)
 
 A question-answering assistant for company documents like security policies, audit procedures and risk reports. It reads PDF and Word files, finds the passages that answer your question, and replies with page-level citations. If the documents it's allowed to search don't contain enough evidence, it says so instead of making something up.
 
 Each user also has a role, and the role decides which documents they can search. That check happens during retrieval, so restricted files never get near the answer in the first place.
 
 The backend is FastAPI and the UI is Streamlit. You don't need an API key to run it: without one, answers are quoted straight from the retrieved passages. With `OPENAI_API_KEY` set, it writes generated answers and can run RAGAS scoring.
+
+**Live demo:** https://mohsen-fekri.github.io/enterprise-document-qa/
+
+Pick a role and ask a question. The demo is a JavaScript port of the same retrieval and answer code, running on the sample documents in your browser, so it needs no server or API key.
 
 ![A compliance officer's question answered from the documents, with page citations and a confidence score.](docs/grounded-answer.png)
 
@@ -136,6 +141,7 @@ backend/main.py          FastAPI routes
 frontend/app.py          Streamlit UI
 enterprise_qa/           retrieval, access control, ingest, evaluation
 scripts/                 sample documents, seeding, dev runner
+docs/                    browser demo (GitHub Pages) and screenshots
 data/sample_docs/        generated PDF and Word files
 data/eval/gold_qa.json   test questions
 tests/
