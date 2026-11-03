@@ -66,19 +66,38 @@
   .about p { margin: 0 0 10px; max-width: 78ch; }
   .about p:last-child { margin-bottom: 0; }
   a { color: var(--accent); }
-  footer { color: var(--muted); font-size: 13px; margin-top: 28px; }
-  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .eyebrow { color: var(--accent); font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 8px; }
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  .badge { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+  .chip.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 500; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .steps { margin: 0; padding-left: 20px; display: grid; gap: 10px; }
+  .steps li, ul.plain li { max-width: 78ch; }
+  ul.plain { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+  footer { color: var(--muted); font-size: 13px; margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
+  @media (max-width: 860px) { .grid, .two { grid-template-columns: 1fr; } }
   @media (max-width: 480px) { form { flex-direction: column; } }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
+    <p class="eyebrow">Retrieval-augmented generation · Access control</p>
     <h1>Enterprise Document Q&amp;A</h1>
-    <p>Ask a question about a small set of company documents (security policy, audit procedure, risk report, handbook, incident response plan). It answers with page citations, says so when the documents don't cover the question, and only searches the files your role is allowed to see. Everything runs in your browser.</p>
+    <p>A question-answering assistant for internal policy documents. Every answer cites the source document and page, the assistant declines when the evidence is too weak instead of guessing, and role-based access control keeps restricted files out of answers for users who aren't cleared to see them. This demo runs entirely in your browser.</p>
+    <div class="badges" aria-label="Tech stack">
+      <span class="badge">Python</span><span class="badge">FastAPI</span><span class="badge">Streamlit</span><span class="badge">BM25 + TF-IDF</span>
+      <span class="badge">Reciprocal rank fusion</span><span class="badge">RAGAS</span><span class="badge">JavaScript</span>
+    </div>
     <div class="links">
-      <a class="chip" href="https://github.com/Mohsen-Fekri/enterprise-document-qa">Code on GitHub</a>
-      <a class="chip" href="https://github.com/Mohsen-Fekri/enterprise-document-qa#evaluation">Evaluation</a>
+      <a class="chip primary" href="https://github.com/Mohsen-Fekri/enterprise-document-qa">View code on GitHub</a>
+      <a class="chip" href="#results">Evaluation</a>
+      <a class="chip" href="#how">How it works</a>
+      <a class="chip" href="https://www.linkedin.com/in/mohsen-fekri">LinkedIn</a>
     </div>
   </header>
 
@@ -101,15 +120,55 @@
     </section>
   </div>
 
-  <section class="card about">
+  <p class="muted" style="margin-top:12px">Try it: ask "What is the P1 incident response time?" as an Employee, then as a Compliance officer. The answer only appears once the role is cleared for the restricted file.</p>
+
+  <section class="card about" id="how">
     <h2>How it works</h2>
-    <p>The documents are split into 512-character chunks. Each question is scored against the chunks with BM25 and TF-IDF, and the two rankings are merged with reciprocal rank fusion. Before any of that, chunks from documents above your role's clearance are removed, so a restricted file can't leak into an answer.</p>
-    <p>The answer is quoted straight from the best matching sentences, with the document and page. If too few of the question's key terms show up in the top passages, it declines instead of guessing. Try asking about P1 incident response as an employee and then as compliance.</p>
-    <p>This page is a JavaScript port of the Python retrieval code in the repo. The full app (FastAPI + Streamlit) can also generate answers with an LLM and run RAGAS evaluation.</p>
+    <ol class="steps">
+      <li><b>Ingest.</b> PDF and Word documents are split into chunks, and each chunk keeps its document title, page number and classification (public, internal, confidential or restricted).</li>
+      <li><b>Filter by role.</b> Before any search runs, chunks above the user's clearance are removed, so a restricted file can never reach an answer.</li>
+      <li><b>Retrieve.</b> Each question is scored with BM25 and TF-IDF, and the two rankings are merged with reciprocal rank fusion.</li>
+      <li><b>Answer or decline.</b> The answer is taken from the best matching sentences and cited by document and page. If too few of the question's key terms appear in the top passages, the assistant declines.</li>
+    </ol>
+    <p class="muted" style="margin:12px 0 0">This page is a JavaScript port of the Python retrieval code. The full app adds a FastAPI backend, a Streamlit interface, document upload, optional LLM-generated answers and RAGAS evaluation.</p>
   </section>
 
+  <div class="two" id="results">
+    <section class="card">
+      <h2>Evaluation</h2>
+      <p class="muted" style="margin:0 0 10px">All nine combinations of three chunk sizes (256, 512, 1024 characters) and three retrievers were compared on an 11-question test set. Best configuration: 512-character chunks with hybrid BM25 + TF-IDF.</p>
+      <table>
+        <tr><th>Metric</th><th style="text-align:right">Score</th></tr>
+        <tr><td>Context recall</td><td class="num">1.000</td></tr>
+        <tr><td>Correct refusals</td><td class="num">1.000</td></tr>
+        <tr><td>Citation coverage</td><td class="num">1.000</td></tr>
+        <tr><td>Answer–context overlap</td><td class="num">0.967</td></tr>
+        <tr><td>Answer–reference overlap</td><td class="num">0.293</td></tr>
+        <tr><td>Overall local score</td><td class="num">0.771</td></tr>
+      </table>
+      <p class="muted"><a href="https://github.com/Mohsen-Fekri/enterprise-document-qa#evaluation">Evaluation details</a></p>
+    </section>
+    <section class="card">
+      <h2>Role-based access</h2>
+      <table>
+        <tr><th>Role</th><th>Can search</th></tr>
+        <tr><td>Employee</td><td>Public and internal</td></tr>
+        <tr><td>Internal auditor</td><td>Up to confidential</td></tr>
+        <tr><td>Compliance officer</td><td>Up to restricted</td></tr>
+        <tr><td>Administrator</td><td>Everything</td></tr>
+      </table>
+      <h2 style="margin-top:18px">Limitations</h2>
+      <ul class="plain">
+        <li>The test set is small (11 questions), and the local metrics are lexical overlap checks, not semantic faithfulness scores.</li>
+        <li>Answers are quoted extracts, so they read less naturally than LLM-generated answers.</li>
+        <li>The documents are synthetic and generated for this demo.</li>
+      </ul>
+    </section>
+  </div>
+
   <footer>
-    Made by <a href="https://github.com/Mohsen-Fekri">Mohsen Fekri</a>. The documents are generated for this demo and contain no real company data.
+    <span>Built by <a href="https://www.linkedin.com/in/mohsen-fekri">Mohsen Fekri</a>, Computer Science, York University · <a href="mailto:justinfe@my.yorku.ca">justinfe@my.yorku.ca</a> · <a href="https://github.com/Mohsen-Fekri">GitHub</a></span>
+    <span>The documents are generated for this demo and contain no real company data.</span>
   </footer>
 </div>
 
