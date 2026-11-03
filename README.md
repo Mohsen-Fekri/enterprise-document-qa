@@ -147,6 +147,10 @@ data/eval/gold_qa.json   test questions
 tests/
 ```
 
+## Author
+
+Mohsen Fekri, Computer Science, York University · [LinkedIn](https://www.linkedin.com/in/mohsen-fekri) · justinfe@my.yorku.ca
+
 ## License
 
 MIT
